@@ -1,0 +1,59 @@
+Firebase Led On and Off
+
+#include <ESP8266WiFi.h>
+#include <FirebaseArduino.h>
+
+// Set these to run example.
+#define FIREBASE_HOST "connectfirebase-785a1.firebaseio.com"
+#define FIREBASE_AUTH "zUwAHLUDo6jjbXqcrpp6Eg8ZXk8i8h2fUKGL4CUf"
+#define WIFI_SSID "Excitel_2.4Ghz"
+#define WIFI_PASSWORD "aman12345678"
+#define espPin D3
+void setup() {
+  Serial.begin(115200);
+  pinMode(espPin, OUTPUT);
+  // connect to wifi.
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
+  
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+   if (Firebase.failed()) {
+      Serial.print("Connection error");
+      Serial.println(Firebase.error());  
+      delay(9000);
+      return;
+  }
+}
+int ledStatus;
+void loop() {
+  // set value
+  if (Firebase.failed()) {
+      Serial.print("setting /number failed:");
+      Serial.println(Firebase.error());  
+      delay(2000);
+      return;
+  }
+  Firebase.setInt("HomeControl/arduinoStatus", 1);
+  ledStatus=Firebase.getInt("HomeControl/led");
+  Serial.print(ledStatus);
+  if(ledStatus==1)
+  {
+    digitalWrite(espPin, HIGH);
+  }
+  else
+  {
+    digitalWrite(espPin, LOW);
+  }
+  // handle error
+  delay(1000);
+  
+
+  
+}
